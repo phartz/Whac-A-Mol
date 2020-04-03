@@ -1,10 +1,3 @@
-// Program to demonstrate the MD_Parola library
-//
-// Demonstrate use of effects on different zones to create an animated sign
-//
-// MD_MAX72XX library can be found at https://github.com/MajicDesigns/MD_MAX72XX
-//
-
 #include <MD_Parola.h>
 #include <MD_MAX72xx.h>
 #include <SPI.h>
@@ -28,6 +21,8 @@ MD_Parola P = MD_Parola(HARDWARE_TYPE, CS_PIN, MAX_DEVICES);
 #define PAUSE_TIME  1000
 
 int moleCnt[] = {0,0};
+int effectSpeed = 0;
+int maxCount = 50;
 
 const char *countdown[] = {
   "- 1 -",
@@ -56,8 +51,8 @@ void doCountdown()
 {
   for (int i = 2; i >= 0; i--)
   {
-    P.displayZoneText(0, countdown[i], PA_CENTER, SPEED_TIME, PAUSE_TIME, PA_OPENING_CURSOR, PA_PRINT);
-    P.displayZoneText(1, countdown[i], PA_CENTER, SPEED_TIME, PAUSE_TIME, PA_OPENING_CURSOR, PA_PRINT);
+    P.displayZoneText(0, countdown[i], PA_CENTER, effectSpeed, PAUSE_TIME, PA_OPENING_CURSOR, PA_PRINT);
+    P.displayZoneText(1, countdown[i], PA_CENTER, effectSpeed, PAUSE_TIME, PA_OPENING_CURSOR, PA_PRINT);
     while (!P.getZoneStatus(0))
       P.displayAnimate();
   }
@@ -70,6 +65,7 @@ void setup(void)
   P.setZone(0,0,3);
   P.setZone(1,4,7);
   randomSeed(analogRead(0));
+  effectSpeed = P.getSpeed() * 5;
 }
 
 void incCount(uint8_t id){
@@ -85,8 +81,8 @@ void incCount(uint8_t id){
 
 void loop(void)
 {
-  P.displayZoneText(0, "Mole 1", PA_CENTER, SPEED_TIME, PAUSE_TIME, effect[random(13)], PA_PRINT);
-  P.displayZoneText(1, "Mole 2", PA_CENTER, SPEED_TIME, PAUSE_TIME, effect[random(13)], PA_PRINT);
+  P.displayZoneText(0, "Mole 1", PA_CENTER, effectSpeed, PAUSE_TIME, effect[random(13)], PA_PRINT);
+  P.displayZoneText(1, "Mole 2", PA_CENTER, effectSpeed, PAUSE_TIME, effect[random(13)], PA_PRINT);
   while (!P.getZoneStatus(0))
     P.displayAnimate();
   
@@ -97,7 +93,7 @@ void loop(void)
   while (true)
   {
     incCount(random(50)%2);
-    if (moleCnt[0] == 100 || moleCnt[1] == 100) {
+    if (moleCnt[0] == maxCount || moleCnt[1] == maxCount) {
       if (moleCnt[0] > moleCnt[1]) {
         P.displayZoneText(0, "Winner!", PA_CENTER, 0, 0, PA_PRINT, PA_PRINT);
         P.displayZoneText(1, "Lost!", PA_CENTER, 0, 0, PA_PRINT, PA_PRINT);
